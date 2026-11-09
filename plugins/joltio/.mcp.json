@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "joltio": {
+      "type": "http",
+      "url": "https://api.joltio.app/mcp"
+    }
+  }
+}

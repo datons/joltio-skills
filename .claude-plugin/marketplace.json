@@ -1,0 +1,14 @@
+{
+  "name": "joltio-skills",
+  "owner": {
+    "name": "Datons",
+    "url": "https://joltio.app"
+  },
+  "plugins": [
+    {
+      "name": "joltio",
+      "source": "./plugins/joltio",
+      "description": "Agent workflows for Joltio Data and governed artifacts"
+    }
+  ]
+}

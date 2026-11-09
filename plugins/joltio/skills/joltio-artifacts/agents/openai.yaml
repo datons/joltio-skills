@@ -1,0 +1,4 @@
+interface:
+  display_name: "Joltio Artifacts"
+  short_description: "Build governed Joltio artifacts from local folders"
+  default_prompt: "Create or improve a Joltio artifact in the current folder using governed functions."
