@@ -26,5 +26,6 @@ Joltio does not provide or consume model tokens. Use the customer's current Code
 - Keep data access inside governed functions. If the needed function is absent, tell the user what governed function must be added instead of embedding SQL or an endpoint in the artifact.
 - Preserve the existing design when editing unless the user asks for a redesign.
 - Use managed layout blocks only for regions intended for drag/resize. Keep freeform areas code-managed.
+- Show only the markets and programs of Joltio Settlements, with their names, and give every chart encoding (color, stroke, marker, fill, band) a direct label or a legend. Details in @references/brief.md.
 
 Read @references/patterns.md when choosing an interaction or visualization pattern.

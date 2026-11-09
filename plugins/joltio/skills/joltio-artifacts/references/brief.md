@@ -18,6 +18,8 @@ Work through these five steps in order, with the user, one at a time. Do not fil
 - The main question and its number come first, above the fold, with the period it covers.
 - Each number states its unit, its period and the function it comes from.
 - Comparisons carry their reference: against the average, the previous period or a target the user named. A number with no reference cannot tell the reader whether to act.
+- Name markets and programs exactly as Joltio Settlements does: MD, RT (split into RT1, RT2 and RT5), S1, S2, S3, MIC (continuous), Balance and final. Do not present other I90 or OMIE programs (PHFC, P48CIERRE, individual intraday sessions) as markets of their own; if the brief needs one, ask the user first.
+- Explain every visual encoding without requiring hover: color, stroke style (solid, dashed, dotted), width, marker shape or size, fill, pattern, opacity, shaded bands and reference lines. Up to four series, label each one directly at the line end or on the bar; with more, or when labels collide, place a legend above the chart. The legend reproduces the exact mark, follows the visual order of the series, uses the market names above and states the unit when series differ. Never rely on color alone. A single-series chart with a clear title and axis needs no legend.
 - If the brief changes while building, update `BRIEF.md` first, then the UI.
 
 ## Starting points for the electricity market
