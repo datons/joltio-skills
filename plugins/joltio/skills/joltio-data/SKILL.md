@@ -351,12 +351,13 @@ Known source and market caveats are listed below when available. Check live cove
 
 # Feedback
 
-The `data_feedback_submit(category, message, context)` MCP tool is available on every plan. Offer to send feedback, without waiting to be asked, when a tool fails with a permission or access error, when a result looks incomplete or the user questions it, when you could not resolve the request or had to assume something, or when the user shows frustration.
+The `feedback_submit(category, message, target, context)` MCP tool is available to every workspace member. Offer to send feedback, without waiting to be asked, when a skill, guide topic, recipe or function confuses you or fails, when a tool fails with a permission or access error, when a result looks incomplete or the user questions it, when you could not resolve the request or had to assume something, or when the user shows frustration.
 
-Ask the user briefly and always confirm before sending. Then call `data_feedback_submit` with:
+Ask the user briefly and always confirm before sending. Then call `feedback_submit` with:
 
-- `category`: one of `bug`, `access`, `inaccuracy`, `suggestion`, `other`.
-- `message`: the issue in the user's own words, without editorializing.
-- `context`: the tool, query or error that prompted it (optional).
+- `category`: one of `bug`, `access`, `inaccuracy`, `suggestion`, `praise`, `other`.
+- `message`: the issue in the user's own words, without editorializing. When the problem is in what you read, quote the line that misled you.
+- `target`: what it refers to, `{kind, id, version?, path?}`. `kind` is `skill`, `guide_topic`, `recipe`, `function`, `instructions` or `tool`; `id` is its name (`joltio-artifacts`, `time-and-units`, the recipe id, the function slug, the tool name). For a skill, pass its `version` from the skill listing and the `path` of the file you read.
+- `context`: the query, parameters or error that prompted it (optional).
 
-The caller's identity is recorded automatically: do not put names or emails in `message`. After sending, confirm it to the user; if it fails, say so honestly. The REST API has no feedback endpoint: feedback is sent only through MCP.
+A wrong value in a unit, company, group or installation is not feedback: submit it with `data_corrections_submit`. The caller's identity is recorded automatically: do not put names or emails in `message`. After sending, confirm it to the user; if it fails, say so honestly.

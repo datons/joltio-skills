@@ -10,7 +10,7 @@ Work through these five steps in order, with the user, one at a time. Do not fil
 2. **Decision.** What that reader decides with the dashboard, and how often: daily bidding, monthly performance review, a PPA negotiation. If there is no decision, say so: the dashboard is context, and should stay small.
 3. **Main question.** One question, written as a question, answered by one number. "How much is my energy really worth this month?", not "Prices and generation".
 4. **Why questions.** Two to four questions that explain the main number when it moves. Each one is also answered by a number or a single chart.
-5. **Evidence.** For each question: the measure, its unit, the period, and the governed function that returns it. Run that function with `run_function` before writing it down. A question without a function is a gap: report it, do not invent the data.
+5. **Evidence.** For each question: the measure, its unit, the period, and the governed function that returns it. Run that function with the MCP tool `artifacts_functions_run` before writing it down. A question without a function is a gap: report it, do not invent the data.
 
 ## Rules for the build
 

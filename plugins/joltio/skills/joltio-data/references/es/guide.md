@@ -346,12 +346,13 @@ Los avisos conocidos sobre fuentes y mercados aparecen abajo cuando están dispo
 
 # Comentarios
 
-La herramienta MCP `data_feedback_submit(category, message, context)` está disponible en todos los planes. Ofrece enviar comentarios, sin esperar a que te lo pidan, cuando una herramienta falla por permisos o acceso, cuando un resultado parece incompleto o el usuario lo cuestiona, cuando no has podido resolver la petición o has tenido que asumir algo, o cuando el usuario muestra frustración.
+La herramienta MCP `feedback_submit(category, message, target, context)` está disponible para cualquier miembro del espacio. Ofrece enviar comentarios, sin esperar a que te lo pidan, cuando una skill, un tema de la guía, una receta o una función te confunda o falle, cuando una herramienta falla por permisos o acceso, cuando un resultado parece incompleto o el usuario lo cuestiona, cuando no has podido resolver la petición o has tenido que asumir algo, o cuando el usuario muestra frustración.
 
-Pregunta brevemente al usuario y confirma siempre antes de enviar. Después llama a `data_feedback_submit` con:
+Pregunta brevemente al usuario y confirma siempre antes de enviar. Después llama a `feedback_submit` con:
 
-- `category`: una de `bug`, `access`, `inaccuracy`, `suggestion`, `other`.
-- `message`: el problema con las palabras del propio usuario, sin interpretarlo.
-- `context`: la herramienta, consulta o error que lo provocó (opcional).
+- `category`: una de `bug`, `access`, `inaccuracy`, `suggestion`, `praise`, `other`.
+- `message`: el problema con las palabras del propio usuario, sin interpretarlo. Si el fallo está en lo que has leído, cita la línea que te confundió.
+- `target`: a qué se refiere, `{kind, id, version?, path?}`. `kind` es `skill`, `guide_topic`, `recipe`, `function`, `instructions` o `tool`; `id` es su nombre (`joltio-artifacts`, `time-and-units`, el id de la receta, el slug de la función, el nombre de la herramienta). En una skill, pasa su `version` del listado de skills y el `path` del fichero que leíste.
+- `context`: la consulta, los parámetros o el error que lo provocó (opcional).
 
-La identidad de quien llama se registra automáticamente: no pongas nombres ni correos en `message`. Tras enviarlo, confírmaselo al usuario; si falla, dilo con honestidad. La API REST no tiene un endpoint de comentarios: solo se envían por MCP.
+Un valor erróneo de una unidad, empresa, grupo o instalación no es un comentario: envíalo con `data_corrections_submit`. La identidad de quien llama se registra automáticamente: no pongas nombres ni correos en `message`. Tras enviarlo, confírmaselo al usuario; si falla, dilo con honestidad.

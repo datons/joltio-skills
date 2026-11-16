@@ -11,7 +11,7 @@ Treat the project folder as the source of truth. Never author `artifact.json`; J
 
 0. Agree on a brief with the user before writing any UI: who reads the dashboard, what they decide with it, and the one question it answers. Save it as `BRIEF.md` in the project folder, following @references/brief.md. When `BRIEF.md` already exists, read it first and build against it.
 1. Run `joltio init <folder> --name "<name>"` when `src/App.svelte` does not exist.
-2. Inspect the available governed data with the MCP tool `list_functions`, then use `run_function` to verify columns and representative rows before designing the UI.
+2. Inspect the available governed data with the MCP tool `artifacts_functions_list`, then use `artifacts_functions_run` to verify columns and representative rows before designing the UI.
 3. Edit `src/App.svelte`, local components, TypeScript, CSS, and `src/layout.json` directly. Import data through static `joltio:function/<slug>` imports.
 4. Run `joltio dev <folder>` while iterating. This compiles and reloads locally on `127.0.0.1`; it does not synchronize a remote draft. Use `--no-open` only when another process owns the browser.
 5. Run `joltio preview --remote <folder>` when an explicit remote parity check or shareable draft is needed.
