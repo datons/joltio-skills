@@ -19,6 +19,12 @@ Treat the project folder as the source of truth. Never author `artifact.json`; J
 
 Joltio does not provide or consume model tokens. Use the customer's current Codex or Claude session for code generation and Joltio CLI/MCP for deterministic platform operations.
 
+## Workspace function verification
+
+Create functions with `joltio artifacts functions create --input-file function.json`, execute representative parameters with `joltio artifacts functions run --input-file run.json`, and review the results against an independent source. After checking the description, output schema, chart and CSV/JSON downloads, a workspace owner or administrator can certify that exact version with `joltio artifacts functions verify --input-file verification.json`.
+
+The verification file contains `id`, `expected_version` (returned by creation or visibility publication), `cases` (an array of objects with `params` and complete `expected_rows`), and a `note` explaining the independent review. Supply actual reviewed rows for the current workspace. Include defaults, a non-default parameter and an empty result where applicable. The server reruns every case, checks exact values, primitive output types and the declared chart columns, and requires at least one non-empty result. Verification records the reviewer and exact definition in the workspace audit. A changed version, name or body invalidates that workspace certification; creating or publishing alone never certifies a function. This does not add the function to the global curated catalog.
+
 ## Boundaries
 
 - Use only relative local imports, `joltio:runtime`, and `joltio:function/<slug>`.
