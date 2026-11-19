@@ -1,6 +1,6 @@
 {
   "name": "joltio",
-  "version": "1.1.2",
+  "version": "1.2.0",
   "description": "Agent workflows for Joltio Data and governed artifacts",
   "license": "MIT"
 }
