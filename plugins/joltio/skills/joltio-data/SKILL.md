@@ -7,7 +7,7 @@ description: "Consult Joltio Data through its MCP or REST API for Spanish electr
 
 API: https://api.joltio.app/data/ · MCP: https://api.joltio.app/mcp
 
-With MCP, call `data_status()` for your plan and date windows, then `data_guide(topic='...')` for details. From Python, start with the `python` topic below. This static guide describes the public plan; the MCP guide is filtered to your plan.
+With MCP, call `data_status()` for your plan and date windows, then `data_guide(topic='...')` for details. From code, start with the `python` or `typescript` topic below. This static guide describes the public plan; the MCP guide is filtered to your plan.
 
 # Joltio Data
 
@@ -46,6 +46,32 @@ print(df)
 ```
 
 Before other queries, check the table, columns and date window in your plan; never guess names. For `table_not_allowed`, choose a table exposed by your plan. For `history_no_date_filter` or `history_restricted`, use `your_window_start` and `latest_data` from `/data/tier-info`. For `query_too_expensive`, narrow the date range, aggregate and select fewer columns. Restriction error responses provide `fix_text` and often `fix_sql_example`; apply that guidance before retrying. The Python client's `QueryError` abbreviates the response body, so inspect the full API error when a hint is cut off. For HTTP 429, honor `Retry-After` (`RateLimitError.retry_after`) and reduce request frequency. On a corporate network with HTTPS inspection, set `SSL_CERT_FILE` and `REQUESTS_CA_BUNDLE` in `.env` to the trusted root certificate PEM, as shown in `.env.example`.
+
+# TypeScript on the server
+
+Install the TypeScript client with `bun add @joltioapp/client` (or `npm install @joltioapp/client`). It has no dependencies and runs on servers: SvelteKit, Bun, Node and edge runtimes. Put `JOLTIO_API_KEY=...` in the server's `.env`. The key gives access to your whole plan, so it must never reach a browser: the client refuses to start in one. Never print, copy into code, or commit the key.
+
+```ts
+import { Joltio } from '@joltioapp/client';
+
+const joltio = new Joltio(); // reads JOLTIO_API_KEY from the environment
+```
+
+In a framework, read the key from its private server environment and pass it as `new Joltio({ apiKey })`. In SvelteKit, create the client in a server-only module and call it from `load` in `+page.server.ts`, so the page receives plain rows and never the key. Create the client inside `load` rather than when the module loads, so a build without the key still succeeds.
+
+`joltio.data.query<T>(sql)` returns decoded rows: datetimes as `Date`, numbers as `number` (`bigint` past 2^53) and dates as `YYYY-MM-DD`. `joltio.data.queryRaw(sql)` returns the response as sent, with `columns`, `rows` and `truncated`. `joltio.data.coverage(table?)` gives the first and last data point, rows and freshness per program: read it instead of `max(datetime)` or `count()` before querying a large table, and to anchor dates to the latest data your plan allows. `joltio.data.dimensions('unit', { q })` finds an I90 unit code by name, and also covers `company` and `technology`. `joltio.data.search(text)` searches the ESIOS indicator catalog. `joltio.data.metadata()` covers only the I90 table (`esios.archives_i90`): its columns and programs. These are methods of the published client, not MCP tools; read this `llms.txt` for static guidance instead of calling MCP `data_guide()`.
+
+For a short OMIE example on the public plan, use an aggregate with a recent date filter:
+
+```ts
+const prices = await joltio.data.query<{ day: Date; eur_mwh: number }>(
+  "SELECT toDate(datetime) AS day, round(avg(price), 2) AS eur_mwh FROM omie.prices WHERE country = 'ES' AND program = 'PDBF' AND datetime >= today() - 7 AND datetime < today() GROUP BY day ORDER BY day"
+);
+```
+
+I90 publishes later than the delivery date. Anchor a query to the latest I90 date from `coverage('esios.archives_i90')`, rather than assuming it is current.
+
+Errors are typed. `AuthenticationError` is a missing or invalid key (401). `QueryError` carries `status` and `detail`: bad SQL, `table_not_allowed` (choose a table exposed by your plan) or `query_too_expensive` (narrow the date range, aggregate and select fewer columns). Restriction errors provide `fix_text` and often `fix_sql_example` in `detail`; apply that guidance before retrying. `RateLimitError` carries `retryAfter` and `tier`: wait, and do not retry the same query. All of them extend `JoltioError`, which also covers connection failures and timeouts.
 
 # Tables available on your plan
 

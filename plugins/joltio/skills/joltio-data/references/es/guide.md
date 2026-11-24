@@ -2,7 +2,7 @@
 
 API: https://api.joltio.app/data/ · MCP: https://api.joltio.app/mcp
 
-Con MCP, llama a `data_status()` para conocer tu plan y sus ventanas de fechas, y después a `data_guide(topic='...')` para más detalles. Desde Python, empieza por el tema `python` más abajo. Esta guía estática describe el plan público; la guía MCP filtra por tu plan.
+Con MCP, llama a `data_status()` para conocer tu plan y sus ventanas de fechas, y después a `data_guide(topic='...')` para más detalles. Desde código, empieza por el tema `python` o `typescript` más abajo. Esta guía estática describe el plan público; la guía MCP filtra por tu plan.
 
 # Joltio Data
 
@@ -41,6 +41,32 @@ print(df)
 ```
 
 Antes de otras consultas, comprueba la tabla, las columnas y la ventana de fechas de tu plan; no inventes nombres. Si aparece `table_not_allowed`, elige una tabla de tu plan. Para `history_no_date_filter` o `history_restricted`, usa `your_window_start` y `latest_data` de `/data/tier-info`. Para `query_too_expensive`, acota las fechas, agrega y selecciona menos columnas. Las respuestas de errores de restricción proporcionan `fix_text` y a menudo `fix_sql_example`; aplica esas indicaciones antes de reintentar. `QueryError` del cliente Python abrevia el cuerpo de la respuesta: consulta el error completo de la API si la indicación aparece cortada. Ante HTTP 429, respeta `Retry-After` (`RateLimitError.retry_after`) y reduce la frecuencia de peticiones. En una red corporativa con inspección HTTPS, fija `SSL_CERT_FILE` y `REQUESTS_CA_BUNDLE` en `.env` al certificado raíz de confianza en formato PEM, como muestra `.env.example`.
+
+# TypeScript en el servidor
+
+Instala el cliente de TypeScript con `bun add @joltioapp/client` (o `npm install @joltioapp/client`). No tiene dependencias y se ejecuta en servidores: SvelteKit, Bun, Node y entornos edge. Pon `JOLTIO_API_KEY=...` en el `.env` del servidor. La clave da acceso a todo tu plan, así que nunca debe llegar a un navegador: el cliente se niega a arrancar en uno. No la imprimas, no la copies en el código y no la subas al repositorio.
+
+```ts
+import { Joltio } from '@joltioapp/client';
+
+const joltio = new Joltio(); // lee JOLTIO_API_KEY del entorno
+```
+
+En un framework, lee la clave de su entorno privado de servidor y pásala con `new Joltio({ apiKey })`. En SvelteKit, crea el cliente en un módulo solo de servidor y llámalo desde `load` en `+page.server.ts`, de modo que la página reciba filas y nunca la clave. Crea el cliente dentro de `load` y no al cargar el módulo, para que la compilación funcione sin la clave.
+
+`joltio.data.query<T>(sql)` devuelve filas decodificadas: fechas y horas como `Date`, números como `number` (`bigint` a partir de 2^53) y fechas como `YYYY-MM-DD`. `joltio.data.queryRaw(sql)` devuelve la respuesta tal cual, con `columns`, `rows` y `truncated`. `joltio.data.coverage(table?)` da el primer y el último dato, las filas y la frescura por programa: léelo en lugar de `max(datetime)` o `count()` antes de consultar una tabla grande, y para anclar las fechas al último dato que permite tu plan. `joltio.data.dimensions('unit', { q })` busca el código de una unidad del I90 por su nombre, y también cubre `company` y `technology`. `joltio.data.search(texto)` busca en el catálogo de indicadores de ESIOS. `joltio.data.metadata()` cubre solo la tabla del I90 (`esios.archives_i90`): sus columnas y programas. Son métodos del cliente publicado, no herramientas MCP; lee este `llms.txt` como guía estática en lugar de llamar a `data_guide()` del MCP.
+
+Para un ejemplo breve de OMIE en el plan público, usa un agregado con un filtro de fecha reciente:
+
+```ts
+const prices = await joltio.data.query<{ day: Date; eur_mwh: number }>(
+  "SELECT toDate(datetime) AS day, round(avg(price), 2) AS eur_mwh FROM omie.prices WHERE country = 'ES' AND program = 'PDBF' AND datetime >= today() - 7 AND datetime < today() GROUP BY day ORDER BY day"
+);
+```
+
+El I90 se publica después de la fecha de entrega. Ancla la consulta al último día del I90 que devuelve `coverage('esios.archives_i90')`, en lugar de suponer que está al día.
+
+Los errores tienen tipo. `AuthenticationError` es una clave ausente o no válida (401). `QueryError` lleva `status` y `detail`: SQL incorrecto, `table_not_allowed` (elige una tabla que exponga tu plan) o `query_too_expensive` (acota las fechas, agrega y selecciona menos columnas). Los errores de restricción incluyen `fix_text` y a menudo `fix_sql_example` en `detail`; aplica esa indicación antes de reintentar. `RateLimitError` lleva `retryAfter` y `tier`: espera y no repitas la misma consulta. Todos heredan de `JoltioError`, que cubre también los fallos de conexión y los tiempos de espera.
 
 # Tablas disponibles en tu plan
 
